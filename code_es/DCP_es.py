@@ -4,9 +4,9 @@ import json
 import inflect
 
 
-OPENAI_API_KEY = "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" 
+OPENAI_API_KEY = "" 
 client_openai = OpenAI(api_key=OPENAI_API_KEY)
-
+modelo_ = "gpt-4o-mini"
 class DeconstruccionConceptual:
     """
    Clase para aplicar DCP a un concepto o campo de conocimiento.
@@ -105,8 +105,7 @@ class DeconstruccionConceptual:
             {
                 "role": "system",
                 "content": (
-                    f"Eres un experto en definiciones y eres exacto."
-                    f"Tu trabajo es comprobar si una cadena de subdivisiones por definición es consistente."
+                    f"Eres un experto en definiciones."
                     f"Se te presentará un hilo de subdivisiones y tu trabajo es determinar los siguientes dos criterios:"
                     f"1.Si la cadena sigue un órden decreciente claro (Ejemplo hecho bien: Antigua Grecia -> Filosofía Griega -> Platón) (Ejemplo hecho mal: verdad -> hecho -> evidencia -> observación -> análisis)"
                     f"2.Si todos los términos de la cadena están relacionados por definición exacta."
@@ -121,9 +120,9 @@ class DeconstruccionConceptual:
                     f"Por favor, analiza si el término se puede subdividir en otros {self.num_conceptos} términos."                  
                     f"El formato debe ser: {{'concept_1': 'subdivision1', 'concept_2': 'subdivision2', ...}} "
                     f"Puedes devolver menos términos que los {self.num_conceptos}, devuelve 'vacío' en los sobrantes."
-                    f"Si ves la cadena vacía es porque es el primer término, trata de no devolver vacío en dicho caso."
-                    f"No tengas miedo a poner todo 'vacío'."
                     f"Te he estado probando y nunca pones 'vacío', recuerda poner 'vacío' en todo si ves un término en la cadena no se relaciona al 100% con el original"  
+                    f"Si ves la cadena vacía es porque es el primer término, trata de no devolver vacío en dicho caso."
+                    f"No tengas miedo a devolver todo 'vacío' si no puedes encontrar más términos relevantes a la cadena"
                 ),
             },
         ] 
@@ -150,7 +149,7 @@ class DeconstruccionConceptual:
         try:
 
             response = client_openai.chat.completions.create(
-                model="gpt-4o-mini",  
+                model=modelo_,  
                 messages=messages,
                 response_format=response_format
 
@@ -171,15 +170,13 @@ class DeconstruccionConceptual:
         while self.lista_pendientes:
 
             concepto_actual = self.lista_pendientes.pop(0)
-            nivel, j, k = [int(x) for x in concepto_actual.split('_')[1].split('.')]
-            concepto_nombre = concepto_actual.split('_')[0].lower()
-
+            concepto_nombre, resto = concepto_actual.rsplit('_', 1)
+            nivel, j, k = [int(x) for x in resto.split('.')]
             concepto_nombre = self.normalizar_concepto(concepto_nombre)
 
             rama_actual = self.ramas_conceptos.get(concepto_actual, [])
 
             contexto = " -> ".join(rama_actual)
-
 
             bucle_encontrado = False
             for ancestro in rama_actual:
@@ -194,7 +191,6 @@ class DeconstruccionConceptual:
 
                 continue
 
-
             subconceptos = self.descomponer_concepto(concepto_nombre, nivel, contexto)
             print(f"Subconceptos recibidos para '{concepto_nombre}': {subconceptos}")
 
@@ -203,7 +199,6 @@ class DeconstruccionConceptual:
                 self.no_return.append(concepto_actual)
                 self.quarks_conceptuales.append(rama_actual + [concepto_nombre])
                 continue
-
 
             nueva_rama = rama_actual + [concepto_nombre]
             try:
@@ -249,7 +244,6 @@ class DeconstruccionConceptual:
 
             self.lista_analizados.append(concepto_actual)
 
-
         bucles_aplanados = set()
         for bucle in self.bucles_conceptuales:
             bucles_aplanados.update(bucle)
@@ -263,6 +257,7 @@ class DeconstruccionConceptual:
             "Historial de Ramas": self.historial_ramas
 
         }
+
     
 def main():
     """
