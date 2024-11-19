@@ -121,7 +121,7 @@ class DeconstruccionConceptual:
                     f"El formato debe ser: {{'concept_1': 'subdivision1', 'concept_2': 'subdivision2', ...}} "
                     f"Puedes devolver menos términos que los {self.num_conceptos}, devuelve 'vacío' en los sobrantes."
                     f"Te he estado probando y nunca pones 'vacío', recuerda poner 'vacío' en todo si ves un término en la cadena no se relaciona al 100% con el original"  
-                    f"Si ves la cadena vacía es porque es el primer término, trata de no devolver vacío en dicho caso."
+                    f"Si ves la cadena vacía es porque es el primer término, trata de no devolver 'vacío' en dicho caso."
                     f"No tengas miedo a devolver todo 'vacío' si no puedes encontrar más términos relevantes a la cadena"
                 ),
             },
