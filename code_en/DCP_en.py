@@ -6,6 +6,7 @@ import inflect
 
 OPENAI_API_KEY = "" 
 client_openai = OpenAI(api_key=OPENAI_API_KEY)
+model="gpt-4o"
 
 class ConceptualDeconstruction:
     """
@@ -105,25 +106,23 @@ class ConceptualDeconstruction:
             {
                 "role": "system",
                 "content": (
-                    f"You're an expert on definitions and you're accurate."
-                    f"Your job is to test whether a string of subdivisions by definition is consistent."
-                    f"You will be presented with a string of subdivisions and your job is to determine the following two criteria:"
+                    f"You're an expert on definitions."
+                    f"You will be presented with a chain of subdivisions and your job is to determine the following two criteria:"
                     f"1.Whether the chain follows a clear decreasing order (Example done right: Ancient Greece -> Greek Philosophy -> Plato) (Example done wrong: truth -> fact -> evidence -> observation -> analysis"
                     f"2. If all terms in the chain are related by exact definition."
-                    f"If one of these two criteria is not met for the last term added to the string you must return in JSON format the word “empty” for all values"
+                    f"If one of these two criteria is not met for the last term added to the chain you must return in JSON format the word “empty” for all values"
                 ),
             },
             {
                 "role": "user",
                 "content": (
-                    f"The last term added to the string is: ‘{concept}’.. "
+                    f"The last term added to the chain is: ‘{concept}’. "
                     f"The chain of subdivisions that has led to this term is: ‘{context}’.."
                     f"Please analyse whether the term can be subdivided into other {self.num_concepts} terms."                  
                     f"The format should be: {{‘concept_1’: ‘subdivision1’, ‘concept_2’: ‘subdivision2’, ...}} "
-                    f"You can return fewer terms than the {self.num_concepts}, return ‘empty’ on the excess terms."
-                    f"If you see the empty string it is because it is the first term, try not to return empty in that case."
-                    f"Don't be afraid to put everything ‘empty’."
-                    f"I've been testing you and you never put ‘empty’, remember to put ‘empty’ in everything if you see a term in the string does not relate 100% to the original one"  
+                    f"You can return fewer terms than the {self.num_concepts}, but you must return the word ‘empty’ on the extra term slots."
+                    f"I've been testing you and you never put ‘empty’, remember to put ‘empty’ if you see a term in the string does not relate 100% to the original one."  
+                    f"If you see the chain empty it is because it is the first term, try not to return empty in that case."
                 ),
             },
         ] 
@@ -150,7 +149,7 @@ class ConceptualDeconstruction:
         try:
 
             response = client_openai.chat.completions.create(
-                model="gpt-4o",  
+                model=model,  
                 messages=messages,
                 response_format=response_format
 
@@ -171,8 +170,9 @@ class ConceptualDeconstruction:
         while self.pending_list:
 
             actual_concept = self.pending_list.pop(0)
-            level, j, k = [int(x) for x in actual_concept.split('_')[1].split('.')]
-            concept_name = actual_concept.split('_')[0].lower()
+            concept_name, rest = actual_concept.rsplit('_', 1)
+            level, j, k = [int(x) for x in rest.split('.')]
+            concept_name = concept_name.lower()
 
             concept_name = self.normalise_concept(concept_name)
 
