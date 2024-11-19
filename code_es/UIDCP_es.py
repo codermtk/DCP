@@ -14,9 +14,9 @@ from DCP_es import DeconstruccionConceptual
 
 OPENAI_API_KEY = "" 
 client_openai = OpenAI(api_key=OPENAI_API_KEY)
-modelo_ = "gpt-4o-mini"
-concepto_inicial_ = "Verdad".lower()
-profundidad_max = 5
+modelo_ = "gpt-4o"
+concepto_inicial_ = "".lower()
+profundidad_max = 6
 subdivisiones_max = 4
 
 def hierarchy_pos(G, root, niveles_nodos, width=1.0, vert_gap=0.2, vert_loc=0, xcenter=0.5):
