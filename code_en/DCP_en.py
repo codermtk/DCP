@@ -121,7 +121,7 @@ class ConceptualDeconstruction:
                     f"Please analyse whether the term can be subdivided into other {self.num_concepts} terms."                  
                     f"The format should be: {{‘concept_1’: ‘subdivision1’, ‘concept_2’: ‘subdivision2’, ...}} "
                     f"You can return fewer terms than the {self.num_concepts}, but you must return the word ‘empty’ on the extra term slots."
-                    f"I've been testing you and you never put ‘empty’, remember to put ‘empty’ if you see a term in the string does not relate 100% to the original one."  
+                    f"Remember to put ‘empty’ if you see a term in the string that does not relate 100% to the original one, you can also return {self.num_concepts} 'empty'."  
                     f"If you see the chain empty it is because it is the first term, try not to return empty in that case."
                 ),
             },
